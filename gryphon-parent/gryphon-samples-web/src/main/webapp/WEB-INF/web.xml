@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN" "http://java.sun.com/dtd/web-app_2_2.dtd">
+<web-app>
+  <servlet>
+    <servlet-name>Controller</servlet-name>
+    <servlet-class>gryphon.web.ActionControllerServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>ExceptionServlet</servlet-name>
+    <servlet-class>gryphon.web.ExceptionServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>samplewebapp</servlet-name>
+    <servlet-class>gryphon.samples.web.SampleWebApp</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>samplewebapp</servlet-name>
+    <url-pattern>/app</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>ExceptionServlet</servlet-name>
+    <url-pattern>/gryphon.exception</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>Controller</servlet-name>
+    <url-pattern>/index</url-pattern>
+  </servlet-mapping>
+  <taglib>
+    <taglib-uri>/gryphon-tags</taglib-uri>
+    <taglib-location>/WEB-INF/gryphon.tld</taglib-location>
+  </taglib>
+</web-app>

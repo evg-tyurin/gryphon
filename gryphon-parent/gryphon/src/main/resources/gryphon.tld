@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE taglib PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.1//EN"
+"http://java.sun.com/j2ee/dtds/web-jsptaglibrary_1_1.dtd">
+
+<taglib>
+  <tlibversion>1.0</tlibversion>
+  <jspversion>1.1</jspversion>
+  <shortname>Gryphon</shortname>
+
+  <!--
+  <tag>
+    <name>page</name>
+    <tag-class>gryphon.web.taglib.PageTag</tag-class>
+    <attribute>
+      <name>param</name>
+      <required>true</required>
+      <rtexprvalue>false</rtexprvalue>
+    </attribute>
+  </tag>-->
+
+
+  <tag>
+    <name>entity</name>
+    <tagclass>gryphon.web.taglib.EntityTag</tagclass>
+    <attribute>
+      <name>key</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <name>attrName</name>
+      <required>true</required>
+      <rtexprvalue>false</rtexprvalue>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>form</name>
+    <tagclass>gryphon.web.taglib.FormTag</tagclass>
+    <attribute>
+      <name>title</name>
+      <required>true</required>
+      <rtexprvalue>false</rtexprvalue>
+    </attribute>
+    <attribute>
+      <name>north</name><!-- web name of the view to dispatch using RequestDespatcher -->
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+    </attribute>
+    <attribute>
+      <name>northEntity</name><!-- property name of the Entity to retrieve from app context-->
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <name>west</name><!-- web name of the view to dispatch using RequestDespatcher -->
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+    </attribute>
+    <attribute>
+      <name>westEntity</name><!-- property name of the Entity to retrieve from app context-->
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <name>east</name><!-- web name of the view to dispatch using RequestDespatcher -->
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+    </attribute>
+    <attribute>
+      <name>eastEntity</name><!-- property name of the Entity to retrieve from app context-->
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+  </tag>
+
+  <!--
+  <tag>
+    <name>view</name>
+    <tag-class>gryphon.web.taglib.ViewTag</tag-class>
+    <attribute>
+      <name>path</name>
+      <required>true</required>
+      <rtexprvalue>false</rtexprvalue>
+    </attribute>
+  </tag>-->
+
+  <tag>
+    <name>button</name>
+    <tagclass>gryphon.web.taglib.ButtonTag</tagclass>
+    <attribute>
+      <name>name</name><!-- programmatic name of the button -->
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+    </attribute>
+    <attribute>
+      <name>value</name><!-- human-readable name of the button -->
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+    </attribute>
+    <attribute>
+      <name>tooltip</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <name>action</name><!-- action (relative URL) to be invoked after button clicked -->
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+  </tag>
+
+  <!--
+  <tag>
+    <name>enumeration</name>
+    <tag-class>gryphon.web.taglib.EnumerationTag</tag-class>
+    <attribute>
+      <name>enumType</name>
+      <required>true</required>
+      <rtexprvalue>false</rtexprvalue>
+    </attribute>
+    <attribute>
+      <name>view</name>
+      <required>true</required>
+      <rtexprvalue>false</rtexprvalue>
+    </attribute>
+    <attribute>
+      <name>controlName</name>
+      <required>true</required>
+      <rtexprvalue>false</rtexprvalue>
+    </attribute>
+  </tag>-->
+
+</taglib>

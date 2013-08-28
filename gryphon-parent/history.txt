@@ -1,0 +1,181 @@
+Gryphon project change history
+
+5.1.0
+-----
+* move to maven
+* split project into different modules
+
+5.0.7
+-----
+* quick fix in SqlEntityBroker
+
+5.0.6
+-----
+* generics in gryphon.common.* package
+* AbstractDatabaseBroker closes connections
+* SqlDatabaseBroker works with DataSource
+
+5.0.5
+-----
+new LdapBrowser class 
+
+5.0.4
+-----
+* new DateUtil class 
+* new methods in FileUtil class
+* close SQL statements in finally block
+* new package gryphon.xml.*
+* new class *.ru.Morph 
+
+5.0.3
+-----
+hotfix in SqlEntityBroker 
+
+5.0.2
+-----
+new methods in SqlEntityBroker and AbstractDatabaseBroker
+
+5.0.1
+-----
+fix in EntityComparator - support for DESC again
+
+5.0.0
+-----
+source level = 1.5
+* fix in EntityComparator - allow any type of comparable values
+* some fixes in SqlEntityBroker
++ some new methods in SqlEntityBroker
+
+0.5.2
+-----
+MessageHandler modifications:
+* allowed to specify server URL directly without a bundle
+* use plain socket for HTTP transmission instead of HttpUrlConnection that may lead to OutOfMem     
+
+0.5.1
+-----
+optimization in memory operations in MessageHandler  
+
+0.5.0
+-----
+hotfix in JPanelView 
+
+0.4.9
+-----
+hotfixes in Swing implementation of Gryphon:
+* JFrameApp.centerAndSize(percent)
+* JPanelView.createPopupMenu throws Exception
+* корректная работа с Date на GridView 
+* корректная работа с CheckBox на GridView 
+* корректная работа с Date на JTableListView
+* Переработан и расширен демонстрационное приложение gryphon.samples.swing.SampleApp
+
+0.4.8
+-----
+improvements in Swing implementation of Gryphon:
++ GridView for swing
++ ProgressBar in SwingActionController and UserAction.isProgressable
++ Шрифт JTreeView по колесику мыши.
++ Запоминать шрифт при обновлении JTreeView.
++ Автоматизировано создание popupMenu внутри JPanelView
++ Центровка окна при запуске
++ Утилитные методы в классе Gryphon
+
+0.4.7
+-----
+SqlEntityBroker can invoke ps.setNull (for DB2)
++ SqlEntityBroker converts java.util.Date to java.sql.Date
+
+0.4.6
+-----
+SqlEntityBroker.update(entity) supports non-numeric ids
++ added SqlEntityBroker.update(list)
+
+0.4.5
+-----
+SqlEntityBroker.delete(id) and .select1(id) supports non-numeric ids
++ MapCache перемещён в правильный пакет, старый класс @deprecated, но временно оставлен для совместимости
+
+0.4.4
+MessageHandler allows relative URLs
+
+0.4.3
+FrameApp uses AwtActionController
+
+0.4.2
+multiple MessageHandlers per project
+
+0.4.1
+custom ActionControllers
+
+0.4.0
+Context.propertyNames
+
+0.3.3
+JTreeView поддерживает valueConverter, cellRenderer, cellEditor.
+
+0.3.2
+small fix: JTableListView.updateEntity() только редактируемые ячейки
+
+0.3.1
+поддержка чек-боксов в табличных вьюшках
+
+0.3.0
+значительно усовершенствован SqlEntityBroker, в т.ч.
++ добавлена поддержка hibernate-xml-дескрипторов
++ добавлен пример по работе с SQL-based БД
+
+0.2.9
+GridView for AWT implementation
+
+0.2.8
+small fix in MyTableModel
+
+0.2.7
+small fix in AbstractDatabaseBroker
+
+0.2.6
+Dialogs support getCloseOption()
+
+0.2.5
+MyTableModel supports isEditable from descriptor
+
+0.2.4
+small fix in AwtFormContainer
+
+0.2.3
+добавлен database layer
+
+0.2.2
+исправлен баг при показе диалоговых форм. (фоновая форма показывалась не та.)
+обрабатывается поведение диалога по умолчанию (нажатие Enter)
+добавлен абстрактный диалог в свинговой реализации
+
+0.2.1
+добавлена реализация для AWT. Переработано API. Возможна несовместимость с версиями 0.1.x
+
+0.1.6
+автоопределение экшн-контейнера по имени приложения
+вьюшка таблицы c сохранением ширины столбиков
+автозагрузка файла пропертиз во время старта
+вьюшки таблицы и дерева с поп-ап'ом
+
+0.1.5
+поправки в ButtonTag: теперь на форме можно просто указывать ключ экшена.
+
+0.1.4
+добавлена поддержка консольного приложения и робота.
+
+0.1.3
+добавлены датабазные пакеты, а также пакеты веб- и таглиб.
+
+0.1.1
+добавлены Application.init(), Application.start()
+удален JFrameApplication.main(),
+добавлен общий стартер, который развязан с пакетом GUI и графическим приложением
+и который моэжет запускать любые приложения.
+
+0.1.0 - самый первый релиз.
+Есть интерфейсы общего назначения (common),
+для поддержки предметных областей (domain),
+графического интерфйеса (gui), а также их имплементация.

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+    <class name="gryphon.samples.database.Person" table="person" >
+        <id name="id" unsaved-value="null" >
+        	<!-- next line is ignored by SqlEntityBroker -->
+            <generator class="com.technoetic.xplanner.db.hibernate.HibernateIdentityGenerator"/>
+        </id>
+
+        <property name="Last_update" column="last_update"  type="timestamp" />
+        <property name="Name"/>
+        <property name="Email"/>
+        <property name="Phone"/>
+        <property name="Initials"/>
+        <property name="UserId"/>
+        <property name="Password"/>
+        <property name="Hidden" column="is_hidden"/>
+    </class>
+</hibernate-mapping>

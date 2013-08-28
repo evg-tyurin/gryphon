@@ -1,0 +1,69 @@
+<project default="rebuild-gryphon">
+	<property file="src/gryphon.properties"/>
+	<target name="init">
+		<classfileset id="sample1-class-dependence" dir="classes">
+			<rootfileset dir="classes">
+				<include name="sample/web/*.*"/>
+			</rootfileset>
+		</classfileset>					
+	</target>
+	<target name="rebuild-gryphon">
+		<property name="jar-file" value="dist/gryphon-${gryphon.version}.jar"/>
+		<property name="src-jar-file" value="dist/gryphon-${gryphon.version}-sources.jar"/>
+		<delete file="${jar-file}"/>
+		<delete file="${src-jar-file}"/>
+		<jar destfile="${jar-file}" duplicate="fail">
+			<fileset dir="classes">
+				<include name="**"/>
+			</fileset>
+			<manifest>
+				<attribute name="Main-Class" value="gryphon.Gryphon"/>
+			</manifest>
+		</jar>	
+		<jar destfile="${src-jar-file}" duplicate="fail">
+			<fileset dir="src">
+				<include name="**"/>
+			</fileset>
+		</jar>	
+
+	</target>
+	<!-- just makes war without recompiling sources -->
+	<target name="make-war" depends="init">
+		<property name="war-file" value="sample1.war"></property>
+		<delete file="${war-file}"/>
+		<delete>
+			<fileset dir="sample1-www/WEB-INF/classes">
+				<include name="**"/>
+			</fileset>
+		</delete>
+		<copy todir="sample1-www/WEB-INF/classes">
+			<fileset dir="src">
+				<include name="*.properties"/>
+			</fileset>		
+		</copy>
+		<copy todir="sample1-www/WEB-INF/classes">
+			<fileset dir="classes">
+				<include name="gryphon/*.*"/>
+				<include name="gryphon/common/*.*"/>
+				<include name="gryphon/common/impl/*.*"/>
+				<include name="gryphon/domain/*.*"/>
+				<include name="gryphon/gui/*.*"/>
+				<include name="gryphon/samples/web/*.*"/>
+				<include name="gryphon/web/*.*"/>
+				<include name="gryphon/web/taglib/*.*"/>
+			</fileset>
+		</copy>
+<!--
+		<copy todir="sample1-www/WEB-INF/classes">
+			<fileset dir="resources">
+				<include name="**"/>
+			</fileset>		
+		</copy>
+		-->
+		<war destfile="${war-file}" webxml="sample1-www/WEB-INF/web.xml" duplicate="preserve">
+			<fileset dir="sample1-www/">
+				<include name="**"/>
+			</fileset>
+		</war>
+	</target>
+</project>
