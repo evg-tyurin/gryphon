@@ -1,4 +1,4 @@
 gryphon
 =======
 
-Simple and light library with GUI framework and DB access layer
+Simple and lightweight library with GUI framework, DB access layer and some utility classes.
