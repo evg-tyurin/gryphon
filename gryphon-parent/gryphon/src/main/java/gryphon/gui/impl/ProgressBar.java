@@ -15,14 +15,14 @@ import javax.swing.JPanel;
  * @author ET
  */
 public class ProgressBar {
-	private static final String DEFAULT_TEXT = "РџРѕРґРѕР¶РґРёС‚Рµ";
-	private String title = "Р’С‹РїРѕР»РЅСЏРµС‚СЃСЏ РґРµР№СЃС‚РІРёРµ";
+	private static final String DEFAULT_TEXT = "Подождите";
+	private String title = "Выполняется действие";
 	JDialog dialog;
 	private JLabel label;
 	private JPanel progressBarPane = new JPanel(new BorderLayout());
 //    private JProgressBar bar = new JProgressBar();
     private Component parent;
-    /** С‚РµРєСЃС‚ РЅР° РїСЂРѕРіСЂРµСЃСЃ-Р±Р°СЂРµ */
+    /** текст на прогресс-баре */
 	private String labelText = DEFAULT_TEXT;
     
     public ProgressBar(JApplet applet) 

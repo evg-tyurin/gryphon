@@ -5,18 +5,12 @@
 
 <hibernate-mapping>
     <class name="gryphon.samples.database.Person" table="person" >
-        <id name="id" unsaved-value="null" >
-        	<!-- next line is ignored by SqlEntityBroker -->
-            <generator class="com.technoetic.xplanner.db.hibernate.HibernateIdentityGenerator"/>
-        </id>
+        <id name="id" column="userId" />
 
-        <property name="Last_update" column="last_update"  type="timestamp" />
+        <property name="LastUpdate" column="last_update"  type="timestamp" />
         <property name="Name"/>
         <property name="Email"/>
         <property name="Phone"/>
-        <property name="Initials"/>
-        <property name="UserId"/>
-        <property name="Password"/>
         <property name="Hidden" column="is_hidden"/>
     </class>
 </hibernate-mapping>

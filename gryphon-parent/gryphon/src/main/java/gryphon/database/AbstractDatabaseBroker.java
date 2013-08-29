@@ -3,6 +3,8 @@ package gryphon.database;
 import gryphon.Application;
 import gryphon.Entity;
 import gryphon.common.Logger;
+import gryphon.database.sql_impl.Sequence;
+import gryphon.database.sql_impl.SequenceBroker;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -146,6 +148,8 @@ public abstract class AbstractDatabaseBroker implements DatabaseBroker
 
     protected String getBrokerClassName(String entityClassName)
     {
+    	if (entityClassName.equals(Sequence.class.getName()))
+    		return SequenceBroker.class.getName();
         int start = entityClassName.lastIndexOf(".");
         return getPackageName()
                 + entityClassName.substring(start, entityClassName.length())

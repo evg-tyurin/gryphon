@@ -6,6 +6,8 @@ import gryphon.database.AbstractDatabaseBroker;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.List;
+import java.util.Properties;
 
 import javax.sql.DataSource;
 
@@ -136,6 +138,32 @@ public class SqlDatabaseBroker extends AbstractDatabaseBroker
 	public void setDataSource(DataSource dataSource)
 	{
 		this.dataSource = dataSource;
+	}
+	/** 
+	 * Get next id from the sequence. 
+	 * This is global id for all object types of the application. 
+	 */
+	public int nextId() throws Exception
+	{
+		Sequence seq = null;
+		for(;;){
+			// select the only record
+			List<Sequence> list = select(Sequence.class, new Properties());
+			// increment
+			if (list.size()>0){
+				seq = list.get(0);
+				seq.setId(seq.getIntId()+1);
+			}
+			else{
+				seq = new Sequence();
+				seq.setId(1);
+			}
+			// update and check that sequence was not changed by other user
+			int r = update(seq);
+			if (r>0)
+				break;
+		}
+		return seq.getIntId();
 	}
 
 }

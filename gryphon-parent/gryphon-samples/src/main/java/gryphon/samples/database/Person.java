@@ -13,13 +13,11 @@ public class Person extends SimpleEntity
 
 	private String email;
 	
-	private Date last_update;
+	private Date lastUpdate;
 	
 	private String phone;
-	private String initials;
-	private String userId;
-	private String  password;
-	private byte hidden;
+
+	private Boolean hidden;
 
 	public String getName()
 	{
@@ -41,36 +39,6 @@ public class Person extends SimpleEntity
 		this.email = email;
 	}
 
-	public Date getLast_update()
-	{
-		return last_update;
-	}
-
-	public void setLast_update(Date last_update)
-	{
-		this.last_update = last_update;
-	}
-
-	public String getInitials()
-	{
-		return initials;
-	}
-
-	public void setInitials(String initials)
-	{
-		this.initials = initials;
-	}
-
-	public String getPassword()
-	{
-		return password;
-	}
-
-	public void setPassword(String password)
-	{
-		this.password = password;
-	}
-
 	public String getPhone()
 	{
 		return phone;
@@ -81,24 +49,24 @@ public class Person extends SimpleEntity
 		this.phone = phone;
 	}
 
-	public String getUserId()
+	public Date getLastUpdate()
 	{
-		return userId;
+		return lastUpdate;
 	}
 
-	public void setUserId(String userId)
+	public void setLastUpdate(Date lastUpdate)
 	{
-		this.userId = userId;
+		this.lastUpdate = lastUpdate;
 	}
 
-	public byte getHidden()
+	public Boolean getHidden()
 	{
 		return hidden;
 	}
 
-	public void setHidden(Byte hidden)
+	public void setHidden(Boolean hidden)
 	{
-		this.hidden = hidden.byteValue();
+		this.hidden = hidden;
 	}
 
 }

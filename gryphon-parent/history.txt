@@ -1,5 +1,11 @@
 Gryphon project change history
 
+5.1.1
+-----
+* fix in SqlEntityBroker.deleteByQuery()
+* add Sequence to the SQL implementation
+* update in database.SampleApp - use Apache Derby, fix some problems
+
 5.1.0
 -----
 * move to maven

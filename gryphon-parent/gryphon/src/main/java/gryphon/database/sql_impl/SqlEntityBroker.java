@@ -70,6 +70,10 @@ public abstract class SqlEntityBroker implements EntityBroker
 	 * Использовать ps.setNull для атрибутов с пустыми значениями
 	 */
 	protected boolean useSetNull = false;
+	/**
+	 * Какую кавычку использовать в SQL запросах со строковыми значениями.
+	 */
+	private String quote = "\"";
 	
     public SqlEntityBroker()
     {
@@ -512,7 +516,7 @@ public abstract class SqlEntityBroker implements EntityBroker
             }
             if (value instanceof String) 
             {
-                sb.append(key).append(" LIKE \"").append((String)value).append("\" ");
+                sb.append(key).append(" LIKE ").append(quote).append((String)value).append(quote).append(" ");
             } 
             else if (value instanceof Number) 
             {
@@ -528,7 +532,7 @@ public abstract class SqlEntityBroker implements EntityBroker
                         innerOr.append(" OR "); 
                     }
                     if (arr[i] instanceof String)
-                        innerOr.append(key).append(" LIKE \"").append(arr[i]).append("\" ");
+                        innerOr.append(key).append(" LIKE ").append(quote).append(arr[i]).append(quote).append(" ");
                     else
                         innerOr.append(key).append(" = ").append(arr[i]).append(" ");
                             
@@ -645,7 +649,9 @@ public abstract class SqlEntityBroker implements EntityBroker
         return count;
 	}
 	public int deleteByQuery(String query) throws Exception{
-    	String sql = "DELETE FROM "+getTable()+" WHERE "+query;
+    	String sql = "DELETE FROM "+getTable();
+    	if (query!=null && query.trim().length()>0)
+    		sql += " WHERE "+query;
         Logger.log(getClass().getName() + ".delete(): " + sql);
     	PreparedStatement ps = getConnection().prepareStatement(sql);
     	int rows;
@@ -693,6 +699,16 @@ public abstract class SqlEntityBroker implements EntityBroker
 	{
 		Object oId = id;
 		return select1(oId);
+	}
+
+	public String getQuote()
+	{
+		return quote;
+	}
+
+	public void setQuote(String quote)
+	{
+		this.quote = quote;
 	}
 
 }

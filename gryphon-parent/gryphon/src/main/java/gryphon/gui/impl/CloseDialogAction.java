@@ -4,14 +4,14 @@ import gryphon.Navigation;
 import gryphon.UserAction;
 import gryphon.common.GryphonEvent;
 /**
- * Р”РµР№СЃС‚РІРёРµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РїСЂРёРё Р·Р°РєСЂС‹С‚РёРё РґРёР°Р»РѕРіРѕРІРѕР№ С„РѕСЂРјС‹.
+ * Действие пользователя прии закрытии диалоговой формы.
  * @author ET
  *
  */
 public class CloseDialogAction extends UserAction
 {
 	public CloseDialogAction(){
-		super("Р—Р°РєСЂС‹С‚СЊ");
+		super("Закрыть");
 		setNextForm(Navigation.CLOSE_DIALOG);
 	}
 	public CloseDialogAction(String name){
@@ -19,7 +19,7 @@ public class CloseDialogAction extends UserAction
 		setNextForm(Navigation.CLOSE_DIALOG);
 	}
 	public void doAction(GryphonEvent event) throws Exception
-	{// РЅРёС‡РµРіРѕ РЅРµ РґРµР»Р°РµРј
+	{// ничего не делаем
 	}
 
 }
