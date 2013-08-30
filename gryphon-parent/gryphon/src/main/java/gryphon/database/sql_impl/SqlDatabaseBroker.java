@@ -124,6 +124,7 @@ public class SqlDatabaseBroker extends AbstractDatabaseBroker
 		try {
 			if (connection!=null && !connection.isClosed()){
 				connection.close();
+				connection = null;
 			}
 		} catch (SQLException e) {
 			Logger.logThrowable(e);

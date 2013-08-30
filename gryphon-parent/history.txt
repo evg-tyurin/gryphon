@@ -1,5 +1,9 @@
 Gryphon project change history
 
+5.1.2
+-----
+* SqlDatabaseBroker: set connection to null when it's closed 
+
 5.1.1
 -----
 * fix in SqlEntityBroker.deleteByQuery()
