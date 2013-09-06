@@ -16,7 +16,7 @@ public class HelloAction extends WebAction {
   }
   public void doAction(GryphonEvent e) throws java.lang.Exception {
     // мы сами создаем сущность, однако обычно их берут из хранилища (базы данных)
-    List helloList = new ArrayList();
+    List<HelloEntity> helloList = new ArrayList<HelloEntity>();
 
     HelloEntity h1 = new HelloEntity("&#1088;&#1091;&#1089;&#1089;&#1082;&#1080;&#1081;","&#1079;&#1076;&#1086;&#1088;&#1086;&#1074;&#1086;, &#1084;&#1091;&#1078;&#1080;&#1082;&#1080;");
     h1.setId("1");

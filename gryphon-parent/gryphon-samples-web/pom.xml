@@ -3,7 +3,7 @@
   <parent>
     <groupId>commons.gryphon</groupId>
     <artifactId>gryphon-parent</artifactId>
-    <version>5.1.2</version>
+    <version>5.1.3</version>
   </parent>
   <artifactId>gryphon-samples-web</artifactId>
   <packaging>war</packaging>

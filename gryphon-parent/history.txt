@@ -1,5 +1,10 @@
 Gryphon project change history
 
+5.1.3
+-----
+* new methods in XmlUtils
+* new class Finder for Entity instances
+
 5.1.2
 -----
 * SqlDatabaseBroker: set connection to null when it's closed 

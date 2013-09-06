@@ -11,8 +11,8 @@ public abstract class WebActionContainer extends AbstractActionContainer {
   }
 
   public UserAction getUserActionByCommand(String command) {
-    Collection coll  = getAll();
-    for (Iterator i = coll.iterator(); i.hasNext(); ) {
+    Collection<UserAction> coll  = getAll();
+    for (Iterator<UserAction> i = coll.iterator(); i.hasNext(); ) {
       WebAction a = (WebAction)i.next();
       if (command.equals(a.getCommand())) {
         return a;

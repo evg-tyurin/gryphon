@@ -34,22 +34,22 @@ public class ViewPersonListAction extends UserAction
     	ProgressBar pb = getProgressBar();
     	pb.setText("Подождите 3 сек для ознакомления с возможностями мониторинга действий");
     	Thread.sleep(3000);
-    	List personList = getPersonList();
+    	List<Person> personList = getPersonList();
     	getApplication().setProperty(SampleAppNames.PERSON_LIST, personList);
     }
 
-	protected List getPersonList() throws ParseException
+	protected List<Person> getPersonList() throws ParseException
 	{
 		// создать несколько тестовых записей о людях
     	// в обычном сценарии список будет получен из БД
-    	ArrayList personList = new ArrayList();
+    	ArrayList<Person> personList = new ArrayList<Person>();
     	add(personList,"Иван","Иванов",sdf.parse("20-08-1968"));
     	add(personList,"Петр","Петров",sdf.parse("20-09-1978"));
     	add(personList,"Федор","Федоров",sdf.parse("20-10-1988"));
 		return personList;
 	}
 
-	private void add(ArrayList personList, String firstName, String lastName, Date birthDate)
+	private void add(ArrayList<Person> personList, String firstName, String lastName, Date birthDate)
 	{
 		Person p = new Person();
 		p.setFirstName(firstName);

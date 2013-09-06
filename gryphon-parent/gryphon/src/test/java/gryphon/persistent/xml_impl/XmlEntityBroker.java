@@ -3,7 +3,7 @@ package gryphon.persistent.xml_impl;
 import gryphon.Entity;
 import gryphon.database.AbstractDatabaseBroker;
 import gryphon.database.EntityBroker;
-import gryphon.utils.XmlUtils;
+import gryphon.xml.XmlUtils;
 
 import java.io.InputStream;
 import java.io.OutputStream;
