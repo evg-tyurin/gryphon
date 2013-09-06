@@ -1,5 +1,9 @@
 Gryphon project change history
 
+5.1.4
+-----
+* change default path for ldap.properties
+
 5.1.3
 -----
 * new methods in XmlUtils

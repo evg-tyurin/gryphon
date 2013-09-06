@@ -31,7 +31,7 @@ public class LdapBrowser
 	private Properties conf = new Properties();
 
 	public LdapBrowser() {
-		this("ldap.properties");
+		this("/ldap.properties");
 	}
 	public LdapBrowser(String resourceName){
 		try {
