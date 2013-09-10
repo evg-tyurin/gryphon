@@ -1,5 +1,9 @@
 Gryphon project change history
 
+5.1.5
+-----
+* fix version number in the assembled jar
+
 5.1.4
 -----
 * change default path for ldap.properties
