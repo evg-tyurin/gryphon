@@ -1,10 +1,11 @@
 package gryphon.xml;
 
 import java.io.PrintStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class Tag{
+public class Tag implements Serializable{
 	public StringBuffer text = new StringBuffer();
 	public String name;
 	public boolean hasBody;
