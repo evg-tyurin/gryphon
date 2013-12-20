@@ -49,6 +49,10 @@ public abstract class SqlEntityBroker implements EntityBroker
 	 */
     protected static final String __ID = "__id";
 	/**
+	 * Ключ, под которым в маппинге хранится выражение идентификационного столбца. 
+	 */
+    protected static final String __ID_EXPR = "__id_expr";
+	/**
      * Брокер-диспетчер всего хранилища
      */
     private DatabaseBroker databaseBroker;
@@ -176,10 +180,14 @@ public abstract class SqlEntityBroker implements EntityBroker
 
 	protected void setInsertParameters(PreparedStatement ps, Entity entity) throws Exception
 	{
+		int shift = 1;
     	// id column
-    	ps.setObject(1, entity.getId());
+		if (!getMapping().containsKey(__ID_EXPR)){
+			ps.setObject(1, entity.getId());
+			shift = 2;
+		}
     	// other columns
-		List attributes = (List) mapping.get(__ATTRS);
+		List attributes = (List) getMapping().get(__ATTRS);
 		if (attributes==null)
 			return;
 		for (int i = 0; i < attributes.size(); i++)
@@ -187,15 +195,15 @@ public abstract class SqlEntityBroker implements EntityBroker
 			String attrName = (String) attributes.get(i);
 			Object value = entity.getAttribute(attrName);
 			if (value==null && useSetNull)
-				ps.setNull(i+2, getSqlType(entity, attrName));
+				ps.setNull(i+shift, getSqlType(entity, attrName));
 			else
 			{
 				if (value instanceof Timestamp)
-					ps.setObject(i+2, value, Types.TIMESTAMP);
+					ps.setObject(i+shift, value, Types.TIMESTAMP);
 				else if (value instanceof Date)
-					ps.setObject(i+2, new java.sql.Date(((Date)value).getTime()));
+					ps.setObject(i+shift, new java.sql.Date(((Date)value).getTime()));
 				else
-					ps.setObject(i+2, value);
+					ps.setObject(i+shift, value);
 			}
 		}    	
 	}
@@ -223,9 +231,8 @@ public abstract class SqlEntityBroker implements EntityBroker
 
 	protected String getDeleteSql(Object id) throws Exception
 	{
-		return "DELETE FROM "+getTable()+" WHERE "+getIdColumn()+" = ? ";
+		return "DELETE FROM "+getTable()+" WHERE "+getIdColumnExpr()+" = ? ";
 	}
-
 	/**
      * Выбирает объекты в соответствии с наложенными ограничениями
      * 
@@ -304,12 +311,12 @@ public abstract class SqlEntityBroker implements EntityBroker
 		Class cls = Class.forName(getJavaType());
 		Entity e = (Entity) cls.newInstance();
 		e.setId(rs.getObject(getIdColumn()));
-		for (Iterator iter = mapping.keySet().iterator(); iter.hasNext();)
+		for (Iterator iter = getMapping().keySet().iterator(); iter.hasNext();)
 		{
 			String attrName = (String) iter.next();
-			if (attrName.equals(__ID) || attrName.equals(__ATTRS) || attrName.equals(__TABLE))
+			if (attrName.equals(__ID) || attrName.equals(__ID_EXPR) || attrName.equals(__ATTRS) || attrName.equals(__TABLE))
 				continue;
-			String columnName = (String) mapping.get(attrName);
+			String columnName = (String) getMapping().get(attrName);
 			e.setAttribute(attrName, rs.getObject(columnName));
 		}
 		return e;
@@ -377,9 +384,9 @@ public abstract class SqlEntityBroker implements EntityBroker
         return rows;
 	}
 
-    protected String getUpdateSql(Entity entity) throws Exception
+	protected String getUpdateSql(Entity entity) throws Exception
 	{
-		return "UPDATE "+getTable()+" SET "+getNameValuePairs(entity)+" WHERE "+getIdColumn()+"= ? ";
+		return "UPDATE "+getTable()+" SET "+getNameValuePairs(entity)+" WHERE "+getIdColumnExpr()+" = ? ";
 	}
 
 	protected void setUpdateParameters(PreparedStatement ps, Entity entity) throws Exception
@@ -419,9 +426,12 @@ public abstract class SqlEntityBroker implements EntityBroker
 	protected String getColumnValues()
 	{
 		// id column
-		String str = "?";
+		String str = "";
+		if (!getMapping().containsKey(__ID_EXPR)){
+			str = "?";
+		}
 		// other columns
-		List attrs = (List) mapping.get(__ATTRS);
+		List attrs = (List) getMapping().get(__ATTRS);
 		if (attrs==null)
 			return str;
 		for (int i=0; i<attrs.size(); i++)
@@ -436,9 +446,12 @@ public abstract class SqlEntityBroker implements EntityBroker
 	protected String getColumnNames()
 	{
 		// id column
-		String str = getIdColumn();
+		String str = "";
+		if (!getMapping().containsKey(__ID_EXPR)){
+			str = getIdColumn();
+		}
 		// other columns
-		List attrs = (List) mapping.get(__ATTRS);
+		List attrs = (List) getMapping().get(__ATTRS);
 		if (attrs==null)
 			return str;
 		for (Iterator iter = attrs.iterator(); iter.hasNext();)
@@ -446,7 +459,7 @@ public abstract class SqlEntityBroker implements EntityBroker
 			String attrName = (String) iter.next();
 			if (str.length()>0)
 				str += ", ";
-			str += (String)mapping.get(attrName);
+			str += (String)getMapping().get(attrName);
 		}
 		return str;
 	}
@@ -454,6 +467,12 @@ public abstract class SqlEntityBroker implements EntityBroker
 	protected String getIdColumn()
 	{
 		return idColumn;
+	}
+
+	protected String getIdColumnExpr(){
+    	if (getMapping().containsKey(__ID_EXPR))
+    		return (String) getMapping().get(__ID_EXPR);
+    	return getIdColumn();
 	}
 
 	protected String getTable()
@@ -480,7 +499,11 @@ public abstract class SqlEntityBroker implements EntityBroker
 		if (sc.trim().length()>0)
 			sc = " WHERE "+sc;
 		sc = sc.replaceAll(" @", " ");
-		String sql = "SELECT * FROM "+getTable()+sc;
+		String idExpr = "";
+		if (getMapping().containsKey(__ID_EXPR)){
+			idExpr = getMapping().get(__ID_EXPR)+" as "+getIdColumn()+", ";
+		}
+		String sql = "SELECT "+idExpr+"* FROM "+getTable()+sc;
 		String orderBy = (String) constraints.get("ORDER BY");
 		if (orderBy !=null){
 			sql += " ORDER BY "+orderBy;
@@ -588,7 +611,11 @@ public abstract class SqlEntityBroker implements EntityBroker
 			{
 			String name = hbmId.getAttribute("name");
 			String column = hbmId.getAttribute("column");
+			String expr = hbmId.getAttribute("expression");
 			map.put(__ID, (column!=null&&column.length()>0)?column:name);
+			if (expr!=null && expr.length()>0){
+				map.put(__ID_EXPR, expr);
+			}
 			}
 			// other columns
 			ArrayList<String> attrs = new ArrayList<String>();

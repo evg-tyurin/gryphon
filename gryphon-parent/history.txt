@@ -1,5 +1,9 @@
 Gryphon project change history
 
+5.1.7
+-----
+* SqlEntityBroker - support for multi-value id columns (primary keys)
+
 5.1.6
 -----
 * gryphon.xml.* classes Tag and NameValue implement Serializable 
