@@ -5,7 +5,10 @@ import gryphon.database.AbstractDatabaseBroker;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -165,6 +168,72 @@ public class SqlDatabaseBroker extends AbstractDatabaseBroker
 				break;
 		}
 		return seq.getIntId();
+	}
+	/** Одно значение */
+	public Object getValue(String sql) throws Exception{
+		Logger.debug("Query: "+sql);
+		Object value = null;
+		Connection conn = getConnection();
+		try {
+			Statement s = conn.createStatement();
+			ResultSet rs = s.executeQuery(sql);
+			if (rs.next()){
+				value = rs.getObject(1);
+			}
+			rs.close();
+			s.close();
+		}
+		finally{
+			if (!isKeepAlive())
+				close();
+		}
+		return value;
+	}
+	/** Несколько значений из одной записи */
+	public Object[] getValues(String sql, Object[] values) throws Exception{
+		Logger.debug("Query: "+sql);
+		Connection conn = getConnection();
+		try {
+			Statement s = conn.createStatement();
+			ResultSet rs = s.executeQuery(sql);
+			if (rs.next()){
+				for (int i = 0; i < values.length; i++) {
+					values[i] = rs.getObject(i+1);					
+				}
+			}
+			rs.close();
+			s.close();
+		}
+		finally{
+			if (!isKeepAlive())
+				close();
+		}
+		return values;
+	}
+	/** Несколько записей */
+	public List<Object[]> getValues(String sql) throws Exception{
+		Logger.debug("Query: "+sql);
+		Connection conn = getConnection();
+		ArrayList<Object[]> values = new ArrayList<Object[]>(); 
+		try {
+			Statement s = conn.createStatement();
+			ResultSet rs = s.executeQuery(sql);
+			int columnCount = rs.getMetaData().getColumnCount();
+			while (rs.next()){
+				Object[] row = new Object[columnCount]; 
+				for (int i = 0; i < columnCount; i++) {
+					row[i] = rs.getObject(i+1);					
+				}
+				values.add(row);
+			}
+			rs.close();
+			s.close();
+		}
+		finally{
+			if (!isKeepAlive())
+				close();
+		}
+		return values;
 	}
 
 }
