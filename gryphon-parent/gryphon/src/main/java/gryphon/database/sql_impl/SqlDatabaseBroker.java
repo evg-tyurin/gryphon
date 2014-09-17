@@ -5,6 +5,7 @@ import gryphon.database.AbstractDatabaseBroker;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -233,7 +234,38 @@ public class SqlDatabaseBroker extends AbstractDatabaseBroker
 			if (!isKeepAlive())
 				close();
 		}
+		Logger.debug(values.size()+" record(s)");
 		return values;
 	}
+	/** Несколько записей. В запросе могут использоваться параметры. */
+	public List<Object[]> getValuesWithParams(String sql, Object[] params) throws Exception{
+		Logger.debug("Query: "+sql);
+		Connection conn = getConnection();
+		ArrayList<Object[]> values = new ArrayList<Object[]>(); 
+		try {
+			PreparedStatement s = conn.prepareStatement(sql);
+			for (int i = 0; i < params.length; i++) {
+				s.setObject(i+1, params[i]);
+			}
+			ResultSet rs = s.executeQuery();
+			int columnCount = rs.getMetaData().getColumnCount();
+			while (rs.next()){
+				Object[] row = new Object[columnCount]; 
+				for (int i = 0; i < columnCount; i++) {
+					row[i] = rs.getObject(i+1);					
+				}
+				values.add(row);
+			}
+			rs.close();
+			s.close();
+		}
+		finally{
+			if (!isKeepAlive())
+				close();
+		}
+		Logger.debug(values.size()+" record(s)");
+		return values;
+	}
+
 
 }

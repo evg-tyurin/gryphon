@@ -1,5 +1,9 @@
 Gryphon project change history
 
+5.1.9
+-----
+* new method in SqlDatabaseBroker: getValuesWithParams()
+
 5.1.8
 -----
 * new methods in SqlDatabaseBroker: getValue(), getValues()
