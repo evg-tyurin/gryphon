@@ -1,5 +1,9 @@
 Gryphon project change history
 
+5.1.10
+------
+* new configuration options for LDAPBrowser
+
 5.1.9
 -----
 * new method in SqlDatabaseBroker: getValuesWithParams()

@@ -30,6 +30,24 @@ public class LdapBrowser
 {
 	private Properties conf = new Properties();
 
+	/** 
+	 * Список атрибутов, которые запрашиваем из LDAP.
+	 * Начальный список оставлен для обратной совместимости. 
+	 */
+	private String[] defRequestedAttrIDs = { "sAMAccountName", "sn", "givenName", "mail", "memberOf" };
+	
+	/**
+	 * Название атрибута, которое будет записано как uid.
+	 * Начальное значение оставлено для обратной совместимости.
+	 */
+	private String defUidAttrID = "sAMAccountName";
+
+	/**
+	 * Название атрибута, из которого будет определяться членство в группах.
+	 * Начальное значение оставлено для обратной совместимости.
+	 */
+	private String defGroupMembershipAttrID = "memberOf";
+	
 	public LdapBrowser() {
 		this("/ldap.properties");
 	}
@@ -76,7 +94,7 @@ public class LdapBrowser
 			String filter = conf.getProperty("ldap.search.filter"); 
 
 			// limit returned attributes to those we care about
-			String[] attrIDs = { "sAMAccountName", "sn", "givenName", "mail", "memberOf" };
+			String[] attrIDs = getRequestedAttrIDs();
 
 			SearchControls ctls = new SearchControls();
 			ctls.setReturningAttributes(attrIDs);
@@ -90,19 +108,22 @@ public class LdapBrowser
 			while (answer.hasMore()) {
 				SearchResult sr = answer.next();
 				Attributes attrs = sr.getAttributes();
-				String uid = get(attrs,"sAMAccountName");
-				String surName = get(attrs,"sn");
-				String givenName = get(attrs,"givenName");
-				String mail = get(attrs,"mail");
-				List<String> memberOf = getAll(attrs,"memberOf");
-				addNestedGroups(memberOf, groups);
-//			System.out.println(uid+": "+surName + " " + givenName+ ", "+mail);
+				
 				HashMap<String, Object> user = new HashMap<String, Object>();
+				String uidAttrID = conf.getProperty("ldap.uidAttrID",defUidAttrID);
+				String uid = get(attrs,uidAttrID);
 				user.put("uid", uid);
-				user.put("sn", surName);
-				user.put("givenName", givenName);
-				user.put("mail", mail);
-				user.put("memberOf", memberOf.toArray(new String[]{}));
+				for (String attrID : attrIDs) {
+					String value = get(attrs, attrID);
+					if (!attrID.equals(uidAttrID))
+						user.put(attrID, value);
+				}
+				
+				String groupMembershipAttrID = conf.getProperty("ldap.groupMembershipAttrID",defGroupMembershipAttrID);
+				List<String> memberOf = getAll(attrs,groupMembershipAttrID);
+				addNestedGroups(memberOf, groups);
+
+				user.put(groupMembershipAttrID, memberOf.toArray(new String[]{}));
 				users.put(uid, user);
 			}
 			return users;
@@ -110,6 +131,13 @@ public class LdapBrowser
 			if (ctx!=null)
 				ctx.close();
 		}
+	}
+	private String[] getRequestedAttrIDs()
+	{
+		String strAttrIDs = conf.getProperty("ldap.requestedAttrIDs");
+		if (strAttrIDs==null)
+			return defRequestedAttrIDs;
+		return strAttrIDs.split(",");
 	}
 	/** Добавить к группам первого уровня все вложенные */
 	private void addNestedGroups(List<String> memberOf, Map<String, HashMap<String, Object>> groups)
