@@ -5,6 +5,7 @@ import gryphon.common.Logger;
 import gryphon.database.DatabaseBroker;
 import gryphon.database.EntityBroker;
 import gryphon.database.MapCache;
+import gryphon.database.PrimaryKey;
 
 import java.io.InputStream;
 import java.sql.Connection;
@@ -15,6 +16,7 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -71,6 +73,10 @@ public abstract class SqlEntityBroker implements EntityBroker
 	 */
 	private String idColumn;
 	/**
+	 * Столбцы таблицы, которые являются составным уникальным ид - PRIMARY KEY
+	 */
+	private List<String> pkColumns;
+	/**
 	 * Использовать ps.setNull для атрибутов с пустыми значениями
 	 */
 	protected boolean useSetNull = false;
@@ -110,6 +116,10 @@ public abstract class SqlEntityBroker implements EntityBroker
 		{// default id column is table name + 'Id'
 			setIdColumn(getTable()+"Id");
 		}
+		if (getMapping().get(__ID_EXPR)!=null)
+		{
+			pkColumns = Arrays.asList(((String) getMapping().get(__ID_EXPR)).split(","));		
+		}
     }
 
     /**
@@ -128,12 +138,31 @@ public abstract class SqlEntityBroker implements EntityBroker
         int rows;
 		try {
 			rows = ps.executeUpdate();
+			if (entity.getId()==null){
+				if (getMapping().get(__ID_EXPR)!=null){
+					PrimaryKey pk = new PrimaryKey();
+					for (String col : pkColumns) {
+						String attrName = getKeyByValue(getMapping(),col);
+						pk.put(col, entity.getAttribute(attrName));
+					}
+					entity.setId(pk);
+				}
+			}
 		} finally{
 	        ps.close();
 		}
         Logger.log("insert.rows="+rows);
         return rows;
     }
+	protected String getKeyByValue(HashMap map, String value)
+	{
+		for (Object key : map.keySet()) {
+			Object val = map.get(key);
+			if (val.equals(value))
+				return (String) key;
+		}
+		return null;
+	}
 
 	public <T extends Entity> int insert(List<T> list) throws Exception {
 		if (list.size()==0)
@@ -218,7 +247,7 @@ public abstract class SqlEntityBroker implements EntityBroker
     	String sql = getDeleteSql(id);
         Logger.log(getClass().getName() + ".delete(): " + sql);
     	PreparedStatement ps = getConnection().prepareStatement(sql);
-    	ps.setObject(1, id);
+    	setIdParams(ps, id);
     	int rows;
 		try {
 			rows = ps.executeUpdate();
@@ -231,7 +260,12 @@ public abstract class SqlEntityBroker implements EntityBroker
 
 	protected String getDeleteSql(Object id) throws Exception
 	{
-		return "DELETE FROM "+getTable()+" WHERE "+getIdColumnExpr()+" = ? ";
+		return "DELETE FROM "+getTable()+" WHERE "+getIdColumnExpr();
+	}
+	
+	public int delete(PrimaryKey pk) throws Exception 
+	{
+		return delete((Object)pk);
 	}
 	/**
      * Выбирает объекты в соответствии с наложенными ограничениями
@@ -270,7 +304,7 @@ public abstract class SqlEntityBroker implements EntityBroker
         PreparedStatement ps = getConnection().prepareStatement(sql);
         Entity e;
 		try {
-			ps.setObject(1, id);
+			setIdParams(ps, id);
 			ResultSet rs = ps.executeQuery();
 			e = null;
 			if (rs.next())
@@ -310,7 +344,13 @@ public abstract class SqlEntityBroker implements EntityBroker
 	{
 		Class cls = Class.forName(getJavaType());
 		Entity e = (Entity) cls.newInstance();
-		e.setId(rs.getObject(getIdColumn()));
+		if (getMapping().containsKey(__ID_EXPR)){
+			e.setId(createPrimaryKey(rs));
+		}
+		else {
+			e.setId(rs.getObject(getIdColumn()));
+		}
+
 		for (Iterator iter = getMapping().keySet().iterator(); iter.hasNext();)
 		{
 			String attrName = (String) iter.next();
@@ -320,6 +360,14 @@ public abstract class SqlEntityBroker implements EntityBroker
 			e.setAttribute(attrName, rs.getObject(columnName));
 		}
 		return e;
+	}
+	protected PrimaryKey createPrimaryKey(ResultSet rs) throws SQLException
+	{
+		PrimaryKey pk = new PrimaryKey();
+		for (String col : pkColumns) {
+			pk.put(col, rs.getObject(col));
+		}
+		return pk;
 	}
 	/**
 	 * Обновляет объект в БД.
@@ -386,7 +434,7 @@ public abstract class SqlEntityBroker implements EntityBroker
 
 	protected String getUpdateSql(Entity entity) throws Exception
 	{
-		return "UPDATE "+getTable()+" SET "+getNameValuePairs(entity)+" WHERE "+getIdColumnExpr()+" = ? ";
+		return "UPDATE "+getTable()+" SET "+getNameValuePairs(entity)+" WHERE "+getIdColumnExpr();
 	}
 
 	protected void setUpdateParameters(PreparedStatement ps, Entity entity) throws Exception
@@ -394,23 +442,36 @@ public abstract class SqlEntityBroker implements EntityBroker
 		List attributes = (List) mapping.get(__ATTRS);
 		if (attributes==null)
 			return;
-		for (int i = 0; i < attributes.size(); i++)
+		int i = 1;
+		for (Object o : attributes)
 		{
-			String attrName = (String) attributes.get(i);
+			String attrName = (String) o;
+			String colName = (String) getMapping().get(attrName);
+			if (pkColumns!=null && pkColumns.contains(colName))
+				continue;
 			Object value = entity.getAttribute(attrName);
 			if (value==null && useSetNull)
-				ps.setNull(i+1, getSqlType(entity, attrName));
+				ps.setNull(i++, getSqlType(entity, attrName));
 			else
 			{
 				if (value instanceof Timestamp)
-					ps.setObject(i+1, value, Types.TIMESTAMP);
+					ps.setObject(i++, value, Types.TIMESTAMP);
 				else if (value instanceof Date)
-					ps.setObject(i+1, new java.sql.Date(((Date)value).getTime()));
+					ps.setObject(i++, new java.sql.Date(((Date)value).getTime()));
 				else
-					ps.setObject(i+1, value);
+					ps.setObject(i++, value);
 			}
+		}//for
+		if (hasComplexPK()){
+			for (String colName : pkColumns) {
+				String attrName = getKeyByValue(getMapping(), colName);
+				Object value = entity.getAttribute(attrName);
+				ps.setObject(i++, value);
+			}//for
 		}
-		ps.setObject(attributes.size()+1, entity.getId());
+		else{
+			ps.setObject(i++, entity.getId());
+		}
 	}
 
 	protected int getSqlType(Entity entity, String attrName)
@@ -470,9 +531,16 @@ public abstract class SqlEntityBroker implements EntityBroker
 	}
 
 	protected String getIdColumnExpr(){
-    	if (getMapping().containsKey(__ID_EXPR))
-    		return (String) getMapping().get(__ID_EXPR);
-    	return getIdColumn();
+    	if (getMapping().containsKey(__ID_EXPR)){
+    		String expr = "";
+    		for (String col : pkColumns) {
+    			if (expr.length()>0)
+    				expr += " AND ";
+				expr += col + " = ? ";
+			}
+    		return expr;
+    	}
+    	return getIdColumn()+" = ? ";
 	}
 
 	protected String getTable()
@@ -490,7 +558,7 @@ public abstract class SqlEntityBroker implements EntityBroker
 	}
 	protected String getSelect1Sql(Object id) throws Exception
 	{
-		return "SELECT * FROM "+getTable()+" WHERE "+getIdColumn()+" = ? ";
+		return "SELECT * FROM "+getTable()+" WHERE "+getIdColumnExpr();
 	}
 
 	protected String getSelectSql(Properties constraints) throws Exception
@@ -499,11 +567,11 @@ public abstract class SqlEntityBroker implements EntityBroker
 		if (sc.trim().length()>0)
 			sc = " WHERE "+sc;
 		sc = sc.replaceAll(" @", " ");
-		String idExpr = "";
-		if (getMapping().containsKey(__ID_EXPR)){
-			idExpr = getMapping().get(__ID_EXPR)+" as "+getIdColumn()+", ";
-		}
-		String sql = "SELECT "+idExpr+"* FROM "+getTable()+sc;
+//		String idExpr = "";
+//		if (getMapping().containsKey(__ID_EXPR)){
+//			idExpr = getMapping().get(__ID_EXPR)+" as "+getIdColumn()+", ";
+//		}
+		String sql = "SELECT "+getColumnNames()+" FROM "+getTable()+sc;
 		String orderBy = (String) constraints.get("ORDER BY");
 		if (orderBy !=null){
 			sql += " ORDER BY "+orderBy;
@@ -575,9 +643,12 @@ public abstract class SqlEntityBroker implements EntityBroker
 		for (Iterator iter = attrs.iterator(); iter.hasNext();)
 		{
 			String attrName = (String) iter.next();
+			String colName = (String)getMapping().get(attrName);
+			if (pkColumns!=null && pkColumns.contains(colName))
+				continue;
 			if (str.length()>0)
 				str += ", ";
-			str += (String)mapping.get(attrName)+" = ? ";
+			str += colName+" = ? ";
 		}
 		return str;
 	}
@@ -691,6 +762,13 @@ public abstract class SqlEntityBroker implements EntityBroker
     	return rows;
 	}
 	public <T extends Entity> int delete(List<T> object) throws Exception{
+		if (getMapping().containsKey(__ID_EXPR)){
+			int rows = 0;
+			for (T t : object) {
+				rows += delete(t.getId());
+			}
+			return rows;
+		}
     	String sql = "DELETE FROM "+getTable()+" WHERE "+getIdColumn()+" IN ( ";
     	sql += getIds(object);
     	sql += " )";
@@ -726,6 +804,30 @@ public abstract class SqlEntityBroker implements EntityBroker
 	{
 		Object oId = id;
 		return select1(oId);
+	}
+
+    protected void setIdParams(PreparedStatement ps, Object id) throws SQLException
+	{
+    	if (id instanceof PrimaryKey){
+    		PrimaryKey pk = (PrimaryKey) id;
+    		int i = 1;
+    		for (String colName : pkColumns) {
+				ps.setObject(i++, pk.get(colName));
+			}
+    	}
+    	else {
+    		ps.setObject(1, id);
+    	}		
+	}
+	
+    public Entity select1(PrimaryKey pk) throws Exception
+	{
+		return select1((Object)pk);
+	}
+
+	private boolean hasComplexPK()
+	{
+		return getMapping().get(__ID_EXPR)!=null;
 	}
 
 	public String getQuote()

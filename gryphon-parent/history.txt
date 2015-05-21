@@ -1,5 +1,10 @@
 Gryphon project change history
 
+5.3.0
+-----
+* extended support for multi-value id columns (primary keys)
+* use <id name="id" expression="column1,column2"/>
+
 5.1.10
 ------
 * new configuration options for LDAPBrowser
