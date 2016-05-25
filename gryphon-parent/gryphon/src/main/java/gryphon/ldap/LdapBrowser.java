@@ -97,7 +97,7 @@ public class LdapBrowser
 			// limit returned attributes to those we care about
 			String[] attrIDs = getRequestedAttrIDs();
 			// attributes with multiple values, default is none attribute (all attrs are plain)
-			List<String> multipleAttrIDs = Arrays.asList(conf.getProperty("ldap.requestedMultipleAttrIDs", "-"));
+			List<String> multipleAttrIDs = Arrays.asList(conf.getProperty("ldap.requestedMultipleAttrIDs", "-").split(","));
 
 			SearchControls ctls = new SearchControls();
 			ctls.setReturningAttributes(attrIDs);
