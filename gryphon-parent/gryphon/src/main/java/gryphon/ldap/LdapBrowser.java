@@ -3,6 +3,7 @@ package gryphon.ldap;
 import gryphon.common.Logger;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
@@ -95,6 +96,8 @@ public class LdapBrowser
 
 			// limit returned attributes to those we care about
 			String[] attrIDs = getRequestedAttrIDs();
+			// attributes with multiple values, default is none attribute (all attrs are plain)
+			List<String> multipleAttrIDs = Arrays.asList(conf.getProperty("ldap.requestedMultipleAttrIDs", "-"));
 
 			SearchControls ctls = new SearchControls();
 			ctls.setReturningAttributes(attrIDs);
@@ -114,10 +117,16 @@ public class LdapBrowser
 				String uid = get(attrs,uidAttrID);
 				user.put("uid", uid);
 				for (String attrID : attrIDs) {
-					String value = get(attrs, attrID);
-					if (!attrID.equals(uidAttrID))
-						user.put(attrID, value);
-				}
+					if (multipleAttrIDs.contains(attrID)){
+						List<String> array = getAll(attrs,attrID);
+						user.put(attrID, array);						
+					}
+					else{
+						String value = get(attrs, attrID);
+						if (!attrID.equals(uidAttrID))
+							user.put(attrID, value);
+					}
+				}//for
 				
 				String groupMembershipAttrID = conf.getProperty("ldap.groupMembershipAttrID",defGroupMembershipAttrID);
 				List<String> memberOf = getAll(attrs,groupMembershipAttrID);
@@ -160,7 +169,8 @@ public class LdapBrowser
 	private Map<String, HashMap<String, Object>> getAllGroups(DirContext ctx) throws NamingException
 	{
 		// Specify the search filter
-		String filter = conf.getProperty("ldap.search.filter"); 
+		// second arg is for compatibility with previous version
+		String filter = conf.getProperty("ldap.groups.search.filter","ldap.search.filter"); 
 
 		// limit returned attributes to those we care about
 		String[] attrIDs = { "sAMAccountName", "cn", "memberOf" };
