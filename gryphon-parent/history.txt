@@ -1,5 +1,9 @@
 Gryphon project change history
 
+5.3.3
+-----
+* Logger output can be redirected to java.util.logging.
+
 5.3.2
 -----
 * quick fix
